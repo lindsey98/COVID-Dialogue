@@ -6,7 +6,8 @@ COVID-Dialogue-Dataset is a Chinese medical dialogue dataset about COVID-19 and 
 - Description of patient’s medical condition
 - Dialogue
 - (Optional) Diagnosis and suggestions.
-The dataset is built from Haodf.com and all copyrights of the data belong to Haodf.com.
+
+The dataset is built from [Haodf.com](Haodf.com) and all copyrights of the data belong to [Haodf.com](Haodf.com).
 
 If you find this dataset useful, please cite:
 
