@@ -21,8 +21,8 @@ The paper draft is available [here](https://pengtaoxie.github.io/coviddiag.pdf)
 
 If you find this dataset useful, please cite:
 
-    @article{ju2020COVIDDialogueDatasetChinese,
-      title={COVID-Dialogue-Dataset-Chinese: a Chinese medical dialogue dataset about COVID-19 and other types of pneumonia},
+    @article{ju2020CovidDialog,
+      title={CovidDialog: Medical Dialogue Datasets about COVID-19},
       author={Ju, Zeqian and Chakravorty, Subrato and He, Xuehai and Chen, Shu and Yang, Xingyi and Xie, Pengtao},
       journal={ https://github.com/UCSD-AI4H/COVID-Dialogue}, 
       year={2020}
