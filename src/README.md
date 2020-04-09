@@ -1,7 +1,5 @@
 # COVID-19 Dialogue Generation Model
 
-## The pretrained models will be uploaded soon.
-
 ## Introduction
 
 This is a pytorch implementation of the Chinese COVID Dialogue Generation Model.
@@ -16,7 +14,13 @@ In training:
 
 `LOAD_DIR` is the directory that you store your trained model weights
 
-`DECODER_PATH` is the path of the trained model weights
+`DECODER_PATH` is the file path of the trained model weight
+
+Before running the code, download the pre-trained [encoder](https://drive.google.com/file/d/13GnYf6pj0wD7XNWrazMnoQXgUki4Tybp/view?usp=sharing) and [decoder](https://drive.google.com/file/d/1qaAUCV2alrYVrSUyM2PCmYdRuAip_DSP/view?usp=sharing) model weight.
+
+> You can also directly download the final trained decoder model [here](https://drive.google.com/file/d/1079k1JTmGQC3Qvzzru1VNiAiIkjQ7AG1/view?usp=sharing)
+
+
 
 1. First preprocess the dataset and split the data to train, validate and test sets:
 
