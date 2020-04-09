@@ -1,5 +1,7 @@
 # COVID Dialogue Generate Model
 
+## The pretrained models will be uploaded soon.
+
 ## Introduction
 
 This is a pytorch implementation of the Chinese COVID Dialogue Generation Model.
