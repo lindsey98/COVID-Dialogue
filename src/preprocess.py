@@ -43,51 +43,6 @@ def seq2token_ids(source_seq, target_seq):
     return encoder_input, decoder_input, mask_encoder_input, mask_decoder_input
 
 
-num = 0
-
-def make_sentences(position, sentence):
-    return {
-        'position': position,
-        'sentence': sentence
-    }
-
-doctor_or_patient = -1
-data = []
-
-temp_sentence = ''
-doctor_flag = False
-patient_flag = False
-        
-with open(dataset_file, 'r') as f:
-    while True:
-        line = f.readline()
-        if not line:
-            break
-        if line[:8] == 'Dialogue':
-            temp_sentence = ''
-            doctor_flag = False
-            patient_flag = False
-
-        elif line[:3] == '病人:':
-            patient_flag = True
-            line = f.readline()
-            sen = '病人:'+ line.rstrip()
-            if sen[-1] not in '.。？，,?!！~～':
-                sen += '。'
-            temp_sentence += sen
-                
-        elif line[:3] == '医生:':
-            if patient_flag: doctor_flag = True
-            line = f.readline()
-            sen = '医生:'+ line.rstrip()
-            if sen[-1] not in '.。？，,?!！~～':
-                sen += '。'
-            if doctor_flag:
-                data.append((temp_sentence, sen))
-            
-            temp_sentence += sen
-
-
 def make_dataset(data, file_name='train_data.pth'):
     train_data = []
 
@@ -115,6 +70,57 @@ def make_dataset(data, file_name='train_data.pth'):
     torch.save(train_data, file_name)
 
 
-make_dataset(data[:int(len(data) * 0.8)])
-make_dataset(data[int(len(data) * 0.8):int(len(data) * 0.9)], 'validate_data.pth')
-make_dataset(data[int(len(data) * 0.9):], 'test_data.pth')
+
+num = 0
+total_id_num = 399
+validate_idx = int(float(total_id_num) * 8 / 10)
+test_idx = int(float(total_id_num) * 9 / 10)
+
+
+data = [[], [], []]
+data_split_flag = 0
+
+temp_sentence = ''
+doctor_flag = False
+patient_flag = False
+        
+with open(dataset_file, 'r') as f:
+    while True:
+        line = f.readline()
+        if not line:
+            break
+        if line[:3] == 'id=':
+            num += 1
+            if num >= validate_idx:
+                if num < test_idx:
+                    data_split_flag = 1
+                else:
+                    data_split_flag = 2
+                
+        elif line[:8] == 'Dialogue':
+            temp_sentence = ''
+            doctor_flag = False
+            patient_flag = False
+
+        elif line[:3] == '病人:':
+            patient_flag = True
+            line = f.readline()
+            sen = '病人:'+ line.rstrip()
+            if sen[-1] not in '.。？，,?!！~～':
+                sen += '。'
+            temp_sentence += sen
+                
+        elif line[:3] == '医生:':
+            if patient_flag: doctor_flag = True
+            line = f.readline()
+            sen = '医生:'+ line.rstrip()
+            if sen[-1] not in '.。？，,?!！~～':
+                sen += '。'
+            if doctor_flag:
+                data[data_split_flag].append((temp_sentence, sen))
+            
+            temp_sentence += sen
+
+make_dataset(data[0])
+make_dataset(data[1], 'validate_data.pth')
+make_dataset(data[2], 'test_data.pth')
