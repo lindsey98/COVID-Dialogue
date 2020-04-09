@@ -27,3 +27,19 @@ If you find this dataset useful, please cite:
       journal={ https://github.com/UCSD-AI4H/COVID-Dialogue}, 
       year={2020}
     }
+    
+    
+On the Chinese dataset, we developed a GPT2-based COVID-19 dialogue generation model.
+The details are provided in this [paper draft](https://github.com/pengtaoxie/pengtaoxie.github.io/blob/master/coviddiag-model.pdf)
+
+If you find the code useful, please cite:
+
+    @article{zeng2020coviddialogmodel,
+      title={Develop Medical Dialogue Systems for COVID-19},
+      author={Zeng, Guangtao and Wu, Qingyang and Zhang, Yichen and Yu, Zhou and Xing, Eric and Xie, Pengtao},
+      journal={ https://github.com/UCSD-AI4H/COVID-Dialogue}, 
+      year={2020}
+    }
+
+
+
