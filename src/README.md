@@ -1,4 +1,4 @@
-# COVID Dialogue Generate Model
+# COVID Dialogue Generation Model
 
 ## The pretrained models will be uploaded soon.
 
