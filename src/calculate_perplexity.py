@@ -17,7 +17,7 @@ from chinese_gpt import TransformerEncoder, TransformerDecoderLM
 def calculate_perplexity(
     batch_size=1,
     gpu_id=0,
-    decode_path='decoder.pth'
+    decoder_path='decoder.pth'
     ):
     # make sure your model is on GPU
     device = torch.device(f"cuda:{gpu_id}")
@@ -30,7 +30,7 @@ def calculate_perplexity(
     encoder.eval()
 
     decoder = TransformerDecoderLM()
-    decoder.load_state_dict(torch.load(decode_path))
+    decoder.load_state_dict(torch.load(decoder_path))
     decoder = decoder.to(device)
     decoder.eval()
 
