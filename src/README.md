@@ -18,7 +18,7 @@ In training:
 
 Before running the code, download the pre-trained [encoder](https://drive.google.com/file/d/13GnYf6pj0wD7XNWrazMnoQXgUki4Tybp/view?usp=sharing) and [decoder](https://drive.google.com/file/d/1qaAUCV2alrYVrSUyM2PCmYdRuAip_DSP/view?usp=sharing) model weight.
 
-> You can also directly download the final trained decoder model [here](https://drive.google.com/file/d/1079k1JTmGQC3Qvzzru1VNiAiIkjQ7AG1/view?usp=sharing)
+> You can also directly download the final trained decoder model [here](https://drive.google.com/file/d/1PDEFawj3aPr-8bEA4DjhSDhqMqOuZslR/view?usp=sharing)
 
 
 
