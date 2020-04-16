@@ -7,7 +7,7 @@ COVID-Dialogue-Dataset-English is an English medical dialogue dataset about COVI
 
 The dataset is built from [icliniq.com](https://www.icliniq.com/), [healthcaremagic.com](https://www.healthcaremagic.com/), [healthtap.com](https://www.healthtap.com/) and all copyrights of the data belong to these websites.
 
-COVID-Dialogue-Dataset-Chinese is a Chinese medical dialogue dataset about COVID-19 and other types of pneumonia. Patients who are concerned that they may be infected by COVID-19 or other pneumonia consult doctors and doctors provide advice. There are 399 consultations. Each consultation consists of
+COVID-Dialogue-Dataset-Chinese is a Chinese medical dialogue dataset about COVID-19 and other types of pneumonia. Patients who are concerned that they may be infected by COVID-19 or other pneumonia consult doctors and doctors provide advice. There are 1393 consultations. Each consultation consists of
 
 - ID
 - URL
