@@ -17,7 +17,7 @@ COVID-Dialogue-Dataset-Chinese is a Chinese medical dialogue dataset about COVID
 
 The dataset is built from [Haodf.com](https://www.haodf.com/) and all copyrights of the data belong to [Haodf.com](https://www.haodf.com/).
 
-The paper draft is available [here](https://pengtaoxie.github.io/coviddiag.pdf)
+Details of the datasets are described in this [report](https://pengtaoxie.github.io/coviddiag.pdf)
 
 If you find this dataset useful, please cite:
 
@@ -30,7 +30,7 @@ If you find this dataset useful, please cite:
     
     
 On the Chinese dataset, we developed a GPT2-based COVID-19 dialogue generation model.
-The details are provided in this [paper draft](https://github.com/pengtaoxie/pengtaoxie.github.io/blob/master/coviddiag-model.pdf)
+The details are provided in this [report](https://github.com/pengtaoxie/pengtaoxie.github.io/blob/master/coviddiag-model.pdf)
 
 If you find the code useful, please cite:
 
