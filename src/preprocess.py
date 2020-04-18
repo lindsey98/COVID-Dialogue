@@ -102,18 +102,18 @@ with open(dataset_file, 'r') as f:
             doctor_flag = False
             patient_flag = False
 
-        elif line[:3] == '病人:':
+        elif line[:3] == '病人：':
             patient_flag = True
             line = f.readline()
-            sen = '病人:'+ line.rstrip()
+            sen = '病人：'+ line.rstrip()
             if sen[-1] not in '.。？，,?!！~～':
                 sen += '。'
             temp_sentence += sen
                 
-        elif line[:3] == '医生:':
+        elif line[:3] == '医生：':
             if patient_flag: doctor_flag = True
             line = f.readline()
-            sen = '医生:'+ line.rstrip()
+            sen = '医生：'+ line.rstrip()
             if sen[-1] not in '.。？，,?!！~～':
                 sen += '。'
             if doctor_flag:
