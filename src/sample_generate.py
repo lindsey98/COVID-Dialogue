@@ -10,7 +10,7 @@ import time
 from allennlp.nn import util
 
 # imports chinese gpt
-from chinese_gpt import TransformerDecoderLM
+from chinese_gpt import TransformerEncoder, TransformerDecoderLM
 
 # uses bert chinese wordpiece tokenization
 from pytorch_pretrained_bert import OpenAIAdam, BertTokenizer
@@ -36,6 +36,10 @@ def sample_generate(
     print('load model')
     #------------------------LOAD MODEL-----------------
     tokenizer = BertTokenizer.from_pretrained("bert-base-chinese")
+    encoder = TransformerEncoder()
+    encoder.load_state_dict(torch.load("encoder.pth"))
+    encoder = encoder.to(device)
+    encoder.eval()
 
     decoder = TransformerDecoderLM()
     decoder.load_state_dict(torch.load(decoder_path))
@@ -62,16 +66,12 @@ def sample_generate(
             batch = [item.to(device) for item in batch]
 
             encoder_input, decoder_input, mask, _ = batch
-            mask = F.pad(mask, (0, 4), "constant", 1.0)
 
-            logits, past = decoder(torch.cat([encoder_input, decoder_input[:,:4]], dim=1), mask, past=None, past_length=0)
-            logits = logits[:, -1, :] / temperature
-            logits = top_k_logits(logits, k=top_k)
+            _, past = encoder(encoder_input, mask)
 
-            sentence = [decoder_input[:,:4]]
+            sentence = []
 
-            probs = F.softmax(logits, dim=-1)
-            prob, prev_pred = torch.topk(probs, k=1, dim=-1)
+            prev_pred = decoder_input[:, :1]
             sentence.append(prev_pred)
 
             length = 1

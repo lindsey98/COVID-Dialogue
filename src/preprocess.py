@@ -1,23 +1,124 @@
 from pytorch_pretrained_bert import BertTokenizer
 import torch
 import os
+import codecs
+import json
 
 tokenizer = BertTokenizer.from_pretrained("bert-base-chinese")
 
-dataset_file = os.path.join(os.path.abspath('..'), 'COVID-Dialogue-Dataset-Chinese.txt')
+MAX_ENCODER_SIZE = 400
+MAX_DECODER_SIZE = 100
 
-encoder_max = 400
-decoder_max = 100
-
-def seq2token_ids(source_seq, target_seq):
+def clean_dataset(dataset_file, json_file):
+    '''
+    对 dataset_file 文件进行清洗处理并储存为 json 文件
+    '''
+    f_in = open(dataset_file, "r")
+    f_json = open(json_file, "w", encoding='utf-8')
     
-    # 可以尝试对source_seq进行切分
-    source_seq = tokenizer.tokenize(source_seq) + ["[SEP]"]
-    target_seq = ["[CLS]"] + tokenizer.tokenize(target_seq)
+    total = 0
+    last_part = ""
+    last_turn = 0
+    last_dialog = {}
+    last_list = []
+    last_user = ""
+    
+    Dialog_list = []
+    
+    check_list = []
+    
+    while True:
+        line = f_in.readline()
+        if not line:
+            break
+        if line[:11] == "Description":
+            last_part = "description"
+            last_turn = 0
+            last_dialog = {}
+            last_list = []
+            last_user = ""
+            last_utterance = ""
+            while True:
+                line = f_in.readline()
+                if (not line) or (line in ["\n", "\n\r"]):
+                    break
+                if line[:5] == '病情描述：':
+                    last_user = "病人："
+                    sen = line[6:].rstrip()
+                    if sen == "":
+                        continue
+                    if sen[-1] not in '.。？，,?!！~～':
+                        sen += '。'
+                    if sen in check_list:
+                        last_utterance = ""
+                    else:
+                        last_utterance = last_user + sen
+                        check_list.append(sen)
+                    break
+            
+        elif line[:8] == "Dialogue":
+            if last_part == "description" and len(last_utterance) > 0:
+                last_part = "dialogue"
+                last_user = "病人："
+                last_turn = 1
+                while True:
+                    line = f_in.readline()
+                    if (not line) or (line in ["\n", "\n\r"]):
+                        last_user = ""
+                        last_list.append(last_utterance)
 
-    # 设置不得超过encoder_max大小
-    encoder_input = ["[CLS]"] + source_seq[-(encoder_max-1):]
-    decoder_input = target_seq[:decoder_max-1] + ["[SEP]"]
+                        if  int(last_turn / 2) > 0:
+                            temp = int(last_turn / 2)
+                            last_dialog["Turn"] = temp
+                            total += 1
+                            last_dialog["Id"] = total
+                            last_dialog["Dialogue"] = last_list[: temp * 2]
+                            Dialog_list.append(last_dialog)
+                        break
+                        
+                    if line[:3] == "病人：" or line[:3] == "医生：":
+                        user = line[:3]
+                        line = f_in.readline()
+                        sen = line.rstrip()
+                        if sen == "":
+                            continue
+
+                        if sen[-1] not in '.。？，,?!！~～':
+                            sen += '。'
+                            
+                        if user == last_user:
+                            last_utterance = last_utterance + sen
+                        else:
+                            last_user = user
+                            last_list.append(last_utterance)
+                            last_turn += 1
+                            last_utterance = user + sen
+
+    print ("Total Cases: ", total)
+    json.dump(Dialog_list, f_json, ensure_ascii = False, indent = 4)
+    f_in.close()
+    f_json.close()
+
+
+def seq2token_ids(source_seqs, target_seq):
+    # 可以尝试对source_seq进行切分
+    encoder_input = []
+    for source_seq in source_seqs:
+        # 去掉 xx：
+        encoder_input += tokenizer.tokenize(source_seq[3:]) + ["[SEP]"]
+
+    decoder_input = ["[CLS]"] + tokenizer.tokenize(target_seq[3:])  # 去掉 xx：
+
+    # 设置不得超过 MAX_ENCODER_SIZE 大小
+    if len(encoder_input) > MAX_ENCODER_SIZE - 1:
+        if "[SEP]" in encoder_input[-MAX_ENCODER_SIZE:-1]:
+            idx = encoder_input[:-1].index("[SEP]", -(MAX_ENCODER_SIZE - 1))
+            encoder_input = encoder_input[idx + 1:]
+
+    encoder_input = ["[CLS]"] + encoder_input[-(MAX_ENCODER_SIZE - 1):]
+    decoder_input = decoder_input[:MAX_DECODER_SIZE - 1] + ["[SEP]"]
+    enc_len = len(encoder_input)
+    dec_len = len(decoder_input)
     
     # conver to ids
     encoder_input = tokenizer.convert_tokens_to_ids(encoder_input)
@@ -28,10 +129,10 @@ def seq2token_ids(source_seq, target_seq):
     mask_decoder_input = [1] * len(decoder_input)
 
     # padding
-    encoder_input += [0] * (encoder_max - len(encoder_input))
-    decoder_input += [0] * (decoder_max - len(decoder_input))
-    mask_encoder_input += [0] * (encoder_max - len(mask_encoder_input))
-    mask_decoder_input += [0] * (decoder_max - len(mask_decoder_input))
+    encoder_input += [0] * (MAX_ENCODER_SIZE - len(encoder_input))
+    decoder_input += [0] * (MAX_DECODER_SIZE - len(decoder_input))
+    mask_encoder_input += [0] * (MAX_ENCODER_SIZE - len(mask_encoder_input))
+    mask_decoder_input += [0] * (MAX_DECODER_SIZE - len(mask_decoder_input))
 
     # turn into tensor
     encoder_input = torch.LongTensor(encoder_input)
@@ -47,12 +148,13 @@ def make_dataset(data, file_name='train_data.pth'):
     train_data = []
 
     for d in data:
-        encoder_input, decoder_input, mask_encoder_input, mask_decoder_input = seq2token_ids(d[0], d[1])
-        train_data.append((encoder_input, 
-                        decoder_input, 
-                        mask_encoder_input, 
-                        mask_decoder_input))
-
+        d_len = len(d)
+        for i in range(d_len // 2):
+            encoder_input, decoder_input, mask_encoder_input, mask_decoder_input = seq2token_ids(d[:2 * i + 1], d[2 * i + 1])
+            train_data.append((encoder_input, 
+                            decoder_input,
+                            mask_encoder_input,
+                            mask_decoder_input))
 
     encoder_input, \
     decoder_input, \
@@ -64,63 +166,38 @@ def make_dataset(data, file_name='train_data.pth'):
     mask_encoder_input = torch.stack(mask_encoder_input)
     mask_decoder_input = torch.stack(mask_decoder_input)
 
-
     train_data = [encoder_input, decoder_input, mask_encoder_input, mask_decoder_input]
 
     torch.save(train_data, file_name)
 
+def get_splited_data_by_file(dataset_file):
+    datasets = [[], [], []]
+
+    with open(dataset_file, "r", encoding='utf-8') as f:
+        json_data = f.read()
+        data = json.loads(json_data)
+
+    total_id_num = len(data)
+    validate_idx = int(float(total_id_num) * 8 / 10)
+    test_idx = int(float(total_id_num) * 9 / 10)
+
+    datasets[0] = [d['Dialogue'] for d in data[:validate_idx]]
+    datasets[1] = [d['Dialogue'] for d in data[validate_idx:test_idx]]
+    datasets[2] = [d['Dialogue'] for d in data[test_idx:]]
+    return datasets
 
 
-num = 0
-total_id_num = 399
-validate_idx = int(float(total_id_num) * 8 / 10)
-test_idx = int(float(total_id_num) * 9 / 10)
+dataset_file = os.path.join(os.path.abspath('..'), 'COVID-Dialogue-Dataset-Chinese.txt')
+json_file = os.path.join(os.path.abspath('..'), 'COVID-Dialogue-Dataset-Chinese.json')
 
+clean_dataset(dataset_file, json_file)
+data = get_splited_data_by_file(json_file)
 
-data = [[], [], []]
-data_split_flag = 0
+print(f'Process the train dataset')
+make_dataset(data[0], 'train_data.pth')
 
-temp_sentence = ''
-doctor_flag = False
-patient_flag = False
-        
-with open(dataset_file, 'r') as f:
-    while True:
-        line = f.readline()
-        if not line:
-            break
-        if line[:3] == 'id=':
-            num += 1
-            if num >= validate_idx:
-                if num < test_idx:
-                    data_split_flag = 1
-                else:
-                    data_split_flag = 2
-                
-        elif line[:8] == 'Dialogue':
-            temp_sentence = ''
-            doctor_flag = False
-            patient_flag = False
-
-        elif line[:3] == '病人：':
-            patient_flag = True
-            line = f.readline()
-            sen = '病人：'+ line.rstrip()
-            if sen[-1] not in '.。？，,?!！~～':
-                sen += '。'
-            temp_sentence += sen
-                
-        elif line[:3] == '医生：':
-            if patient_flag: doctor_flag = True
-            line = f.readline()
-            sen = '医生：'+ line.rstrip()
-            if sen[-1] not in '.。？，,?!！~～':
-                sen += '。'
-            if doctor_flag:
-                data[data_split_flag].append((temp_sentence, sen))
-            
-            temp_sentence += sen
-
-make_dataset(data[0])
+print(f'Process the validate dataset')
 make_dataset(data[1], 'validate_data.pth')
+
+print(f'Process the test dataset')
 make_dataset(data[2], 'test_data.pth')
