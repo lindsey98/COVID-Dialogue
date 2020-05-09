@@ -45,10 +45,10 @@ def train_model(
 
 
     #------------------------LOAD TRAIN DATA------------------
-    train_data = torch.load("train_data.pth")
+    train_data = torch.load("../train_data.pth")
     train_dataset = TensorDataset(*train_data)
     train_dataloader = DataLoader(dataset=train_dataset, shuffle=True, batch_size=batch_size)
-    val_data = torch.load("validate_data.pth")
+    val_data = torch.load("../validate_data.pth")
     val_dataset = TensorDataset(*val_data)
     val_dataloader = DataLoader(dataset=val_dataset, shuffle=True, batch_size=batch_size)
     #------------------------END LOAD TRAIN DATA--------------
