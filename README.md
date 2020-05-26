@@ -30,7 +30,7 @@ If you find this dataset useful, please cite:
     
     
 On the Chinese dataset, we developed a GPT2-based COVID-19 dialogue generation model.
-The details are provided in this [report](https://github.com/pengtaoxie/pengtaoxie.github.io/blob/master/coviddiag-model.pdf)
+The details are provided in this [preprint](https://arxiv.org/abs/2005.05442)
 
 If you find the code useful, please cite:
 
