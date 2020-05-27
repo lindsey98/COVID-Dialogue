@@ -42,7 +42,7 @@ def cal_entropy(generated):
     return etp_score, div_score
 
 def cal_length(sentences):
-    sen_length = [len(s) for s in sentences]
+    sen_length = [len(s.split()) for s in sentences]
     return np.mean(sen_length), np.var(sen_length)
 
 def calculate_metrics(predict, reference):
