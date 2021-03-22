@@ -24,7 +24,7 @@ def clean_dataset(dataset_file, json_file):
     
     Dialog_list = []
     
-    check_list = []
+#     check_list = []
     
     while True:
         line = f_in.readline()
@@ -32,7 +32,7 @@ def clean_dataset(dataset_file, json_file):
             break
             
         # Get description
-        if line[:11] == "Description":
+        if line.strip() == "Description":
             last_part = "description"
             last_turn = 0
             last_dialog = {}
@@ -49,19 +49,18 @@ def clean_dataset(dataset_file, json_file):
                     continue
                 if sen[-1] not in ',?.!)~':
                     sen += '.'
-                if sen in check_list:
-                    last_utterance = ""
-                else:
-                    last_utterance = last_user + sen
-                    check_list.append(sen)
+#                 if sen in check_list: # remove check duplicate according to paper?
+#                     last_utterance = "" 
+#                 else:
+                last_utterance = last_user + sen
+#                     check_list.append(sen)
                 break
             
         # Get dialogue
-        elif line[:8] == "Dialogue":
+        elif line.strip() == "Dialogue":
             if last_part == "description" and len(last_utterance) > 0:
                 last_part = "dialogue"
                 last_user = "Patient:"
-#                 last_user = "Doctor:" 
                 last_turn = 1
                 while True:
                     line = f_in.readline()
@@ -69,17 +68,18 @@ def clean_dataset(dataset_file, json_file):
                         last_user = ""
                         last_list.append(last_utterance)
                         
-#                         print(last_turn)
-                        if  int(last_turn / 2) > 0:
+                        if  int(last_turn / 2) > 0: # must have at leat 1 question-response pair
                             temp = int(last_turn / 2)
                             last_dialog["Turn"] = temp
                             total += 1
                             last_dialog["Id"] = total
                             last_dialog["Dialogue"] = last_list[: temp * 2]
                             Dialog_list.append(last_dialog)
+#                         else:
+#                             print(last_dialog)
+                            
                         break
                         
-#                     print(line[:8])
                     if line.strip() == "Patient:" or line.strip() == "Doctor:":
                         user = line.strip()
 #                         print(user)
@@ -99,14 +99,11 @@ def clean_dataset(dataset_file, json_file):
                             last_turn += 1
                             last_utterance = user + sen
                             
-                        
     
-#     print(Dialog_list)
     print ("Total Cases: ", total)
     json.dump(Dialog_list, f_json, ensure_ascii = False, indent = 4)
     f_in.close()
-    f_json.close()
-    
+    f_json.close()    
     
 def seq2token_ids(source_seqs, target_seq):
     # 可以尝试对source_seq进行切分
